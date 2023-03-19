@@ -6,46 +6,72 @@ import "forge-std/console.sol";
 type Vec8x32 is bytes32;
 
 using {add as +, sub as -, or as |, and as &, not as ~} for Vec8x32 global;
+using Vec8x32Methods for Vec8x32 global;
 
-bytes32 constant V01x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
+bytes32 constant B1x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
 
-function broadcast(uint8 x) pure returns (Vec8x32) {
-    unchecked {
-        return Vec8x32.wrap(bytes32(x * uint256(V01x32)));
-    }
-}
+Vec8x32 constant V0x32 = Vec8x32.wrap(0);
+Vec8x32 constant V1x32 = Vec8x32.wrap(B1x32);
 
-function any(Vec8x32 xs, uint8 y) pure returns (bool) {
+library Vec8x32Methods {
+    function any(Vec8x32 xs, uint8 y) internal pure returns (bool) {
         unchecked {
-        bytes32 ys = bytes32(y * uint256(V01x32));
-        bytes32 t = Vec8x32.unwrap(xs);
-        t ^= ~ys;
-        t &= t >> 4;  // 01234567 & 45670123 = ____abcd
-        t &= t >> 2;  // ____abcd & ______ab = ______ef
-        t &= t >> 1;  // ______ef & _______e = _______z, z = &(0,1,2,3,4,5,6,7)
-        t &= V01x32;  // _______z & 00000001 = 0000000z
-        return t != 0;
+            bytes32 ys = bytes32(y * uint256(B1x32));
+            bytes32 t = Vec8x32.unwrap(xs);
+            t ^= ~ys;
+            t &= t >> 4;  // 01234567 & 45670123 = ____abcd
+            t &= t >> 2;  // ____abcd & ______ab = ______ef
+            t &= t >> 1;  // ______ef & _______e = _______z, z = &(0,1,2,3,4,5,6,7)
+            t &= B1x32;  // _______z & 00000001 = 0000000z
+            return t != 0;
+        }
+    }
+
+    function all(Vec8x32 xs, uint8 y) internal pure returns (bool) {
+        unchecked {
+            bytes32 ys = bytes32(y * uint256(B1x32));
+            bytes32 t = Vec8x32.unwrap(xs);
+            t ^= ys;
+            t |= t >> 128;
+            t |= t >> 64;
+            t |= t >> 32;
+            t |= t >> 16;
+            t |= t >> 8;
+            t |= t >> 4;
+            t |= t >> 2;
+            t |= t >> 1;
+            return t == 0;
+        }
+    }
+
+    function put(Vec8x32 xs, uint256 i, uint8 y) internal pure returns (Vec8x32) {
+        unchecked {
+            uint256 s = (31 - (i % 32)) << 3;
+            bytes32 t = Vec8x32.unwrap(xs);
+            t &= ~(bytes32(uint256(0xff)) << s);
+            t |= bytes32(uint256(y) * (1 << s));
+            return Vec8x32.wrap(t);
+        }
+    }
+
+    function pluck(Vec8x32 xs, uint256 i) internal pure returns (uint8 x) {
+        unchecked {
+            bytes32 t = Vec8x32.unwrap(xs);
+            t >>= (31 - (i % 32)) << 3;
+            t &= bytes32(uint256(0xff));
+            // avoid solidity cleanup
+            assembly { x := t }
+        }
     }
 }
 
-function all(Vec8x32 xs, uint8 y) pure returns (bool) {
+function broadcast8x32(uint8 x) pure returns (Vec8x32) {
     unchecked {
-        bytes32 ys = bytes32(y * uint256(V01x32));
-        bytes32 t = Vec8x32.unwrap(xs);
-        t ^= ys;
-        t |= t >> 128;
-        t |= t >> 64;
-        t |= t >> 32;
-        t |= t >> 16;
-        t |= t >> 8;
-        t |= t >> 4;
-        t |= t >> 2;
-        t |= t >> 1;
-        return t == 0;
+        return Vec8x32.wrap(bytes32(x * uint256(B1x32)));
     }
 }
 
-function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
+function embed8x32(uint256 i, uint8 x) pure returns (Vec8x32) {
     unchecked {
         uint256 b = 1 << ((31 - (i % 32)) << 3);
         uint256 t = uint256(x) * b;
@@ -53,29 +79,9 @@ function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
     }
 }
 
-function put(Vec8x32 xs, uint256 i, uint8 y) pure returns (Vec8x32) {
+function fill8x32(uint256 n, uint8 x) pure returns (Vec8x32) {
     unchecked {
-        uint256 s = (31 - (i % 32)) << 3;
-        bytes32 t = Vec8x32.unwrap(xs);
-        t &= ~(bytes32(uint256(0xff)) << s);
-        t |= bytes32(uint256(y) * (1 << s));
-        return Vec8x32.wrap(t);
-    }
-}
-
-function pluck(Vec8x32 xs, uint256 i) pure returns (uint8 x) {
-    unchecked {
-        bytes32 t = Vec8x32.unwrap(xs);
-        t >>= (31 - (i % 32)) << 3;
-        t &= bytes32(uint256(0xff));
-        // avoid solidity cleanup
-        assembly { x := t }
-    }
-}
-
-function fill(uint256 n, uint8 x) pure returns (Vec8x32) {
-    unchecked {
-        bytes32 b = V01x32 << ((32 - (n % 32)) << 3);
+        bytes32 b = B1x32 << ((32 - (n % 32)) << 3);
         uint256 t = x * uint256(b);
         return Vec8x32.wrap(bytes32(t));
     }
@@ -85,7 +91,7 @@ function add(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
     unchecked {
         uint256 x = uint256(Vec8x32.unwrap(xs));
         uint256 y = uint256(Vec8x32.unwrap(ys));
-        uint256 b7 = uint256(V01x32 << 7);
+        uint256 b7 = uint256(B1x32 << 7);
         uint256 x7 = x & b7;
         uint256 y7 = y & b7;
 
@@ -104,12 +110,12 @@ function add(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
 function add1(Vec8x32 xs) pure returns (Vec8x32) {
     unchecked {
         uint256 x = uint256(Vec8x32.unwrap(xs));
-        uint256 b7 = uint256(V01x32 << 7);
+        uint256 b7 = uint256(B1x32 << 7);
         uint256 x7 = x & b7;
 
         x ^= x7;
 
-        uint256 r = x + uint256(V01x32);
+        uint256 r = x + uint256(B1x32);
 
         r ^= x7;
 

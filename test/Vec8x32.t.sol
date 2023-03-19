@@ -10,7 +10,7 @@ contract Vec8x32Test is Test {
         x = uint8(bound(x, 1, 255));
         i = bound(i, 0, 31);
         Vec8x32 v = Vec8x32.wrap(bytes32(uint256(x)) << (i * 8));
-        assertTrue(any(v, x));
+        assertTrue(v.any(x));
     }
 
     // any(v, x) is true if v[i] = x, v[j] = y, and v[k] = 0 for all other k
@@ -23,7 +23,7 @@ contract Vec8x32Test is Test {
             (bytes32(uint256(x)) << (i * 8)) |
             (bytes32(uint256(y)) << (j * 8))
         );
-        assertTrue(any(v, x));
+        assertTrue(v.any(x));
     }
 
     // any(v, x) is false if v[i] = y != x, v[j] = z != x, and v[k] = 0 for all other k
@@ -36,48 +36,48 @@ contract Vec8x32Test is Test {
             (bytes32(uint256(y)) << (i * 8)) |
             (bytes32(uint256(z)) << (j * 8))
         );
-        assertFalse(any(v, x));
+        assertFalse(v.any(x));
     }
 
     function test_all_0() public {
         Vec8x32 z = Vec8x32.wrap(0);
-        assertTrue(all(z, 0x00));
+        assertTrue(z.all(0x00));
 
         Vec8x32 f = Vec8x32.wrap(bytes32(type(uint256).max));
-        assertTrue(all(f, 0xff));
+        assertTrue(f.all(0xff));
     }
 
     function test_all_1(uint8 x) public {
-        Vec8x32 v = broadcast(x);
-        assertTrue(all(v, x));
+        Vec8x32 v = broadcast8x32(x);
+        assertTrue(v.all(x));
     }
 
     function test_all_2(uint8 x, uint8 y, uint256 i) public {
         vm.assume(x != y);
-        Vec8x32 v = put(broadcast(x), i, y);
-        assertFalse(all(v, x));
+        Vec8x32 v = broadcast8x32(x).put(i, y);
+        assertFalse(v.all(x));
     }
 
     function test_embed_0() public {
-        Vec8x32 v1 = embed(0, 0xab);
+        Vec8x32 v1 = embed8x32(0, 0xab);
         assertEq(
             Vec8x32.unwrap(v1),
             hex"ab00000000000000000000000000000000000000000000000000000000000000"
         );
 
-        Vec8x32 v2 = embed(31, 0xcd);
+        Vec8x32 v2 = embed8x32(31, 0xcd);
         assertEq(
             Vec8x32.unwrap(v2),
             hex"00000000000000000000000000000000000000000000000000000000000000cd"
         );
 
-        Vec8x32 v3 = embed(32, 0xde);
+        Vec8x32 v3 = embed8x32(32, 0xde);
         assertEq(
             Vec8x32.unwrap(v3),
             hex"de00000000000000000000000000000000000000000000000000000000000000"
         );
 
-        Vec8x32 v4 = embed(0, 0x00);
+        Vec8x32 v4 = embed8x32(0, 0x00);
         assertEq(
             Vec8x32.unwrap(v4),
             hex"0000000000000000000000000000000000000000000000000000000000000000"
@@ -85,11 +85,11 @@ contract Vec8x32Test is Test {
     }
 
     function test_embed_pluck(uint8 x, uint256 i) public {
-        assertEq(pluck(embed(i, x), i), x);
+        assertEq(embed8x32(i, x).pluck(i), x);
     }
 
     function test_fill_0() public {
-        Vec8x32 v1 = fill(5, 0x01);
+        Vec8x32 v1 = fill8x32(5, 0x01);
         assertEq(
             Vec8x32.unwrap(v1),
             hex"0101010101000000000000000000000000000000000000000000000000000000"
@@ -97,12 +97,12 @@ contract Vec8x32Test is Test {
     }
 
     function test_add_0(uint8 x, uint8 y, uint256 i) public {
-        Vec8x32 xs = embed(i, x);
-        Vec8x32 ys = embed(i, y);
+        Vec8x32 xs = embed8x32(i, x);
+        Vec8x32 ys = embed8x32(i, y);
 
         Vec8x32 zs = xs + ys;
 
-        uint8 z = pluck(zs, i);
+        uint8 z = zs.pluck(i);
 
         unchecked {
             assertEq(z, x + y);
@@ -113,13 +113,13 @@ contract Vec8x32Test is Test {
         i[0] = bound(i[0], 0, 30);
         i[1] = bound(i[1], i[0] + 1, 31);
 
-        Vec8x32 xs = embed(i[0], x[0]) | embed(i[1], x[1]);
-        Vec8x32 ys = embed(i[0], y[0]) | embed(i[1], y[1]);
+        Vec8x32 xs = embed8x32(i[0], x[0]) | embed8x32(i[1], x[1]);
+        Vec8x32 ys = embed8x32(i[0], y[0]) | embed8x32(i[1], y[1]);
 
         Vec8x32 zs = xs + ys;
 
-        uint8 z0 = pluck(zs, i[0]);
-        uint8 z1 = pluck(zs, i[1]);
+        uint8 z0 = zs.pluck(i[0]);
+        uint8 z1 = zs.pluck(i[1]);
 
         unchecked {
             assertEq(z0, x[0] + y[0]);
@@ -128,12 +128,12 @@ contract Vec8x32Test is Test {
     }
 
     function test_sub_0(uint8 x, uint8 y, uint256 i) public {
-        Vec8x32 xs = embed(i, x);
-        Vec8x32 ys = embed(i, y);
+        Vec8x32 xs = embed8x32(i, x);
+        Vec8x32 ys = embed8x32(i, y);
 
         Vec8x32 zs = xs - ys;
 
-        uint8 z = pluck(zs, i);
+        uint8 z = zs.pluck(i);
 
         unchecked {
             assertEq(z, x - y);
@@ -144,13 +144,13 @@ contract Vec8x32Test is Test {
         i[0] = bound(i[0], 0, 30);
         i[1] = bound(i[1], i[0] + 1, 31);
 
-        Vec8x32 xs = embed(i[0], x[0]) | embed(i[1], x[1]);
-        Vec8x32 ys = embed(i[0], y[0]) | embed(i[1], y[1]);
+        Vec8x32 xs = embed8x32(i[0], x[0]) | embed8x32(i[1], x[1]);
+        Vec8x32 ys = embed8x32(i[0], y[0]) | embed8x32(i[1], y[1]);
 
         Vec8x32 zs = xs - ys;
 
-        uint8 z0 = pluck(zs, i[0]);
-        uint8 z1 = pluck(zs, i[1]);
+        uint8 z0 = zs.pluck(i[0]);
+        uint8 z1 = zs.pluck(i[1]);
 
         unchecked {
             assertEq(z0, x[0] - y[0]);
