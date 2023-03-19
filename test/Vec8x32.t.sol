@@ -88,6 +88,14 @@ contract Vec8x32Test is Test {
         assertEq(pluck(embed(i, x), i), x);
     }
 
+    function test_fill_0() public {
+        Vec8x32 v1 = fill(5, 0x01);
+        assertEq(
+            Vec8x32.unwrap(v1),
+            hex"0101010101000000000000000000000000000000000000000000000000000000"
+        );
+    }
+
     function test_add_0(uint8 x, uint8 y, uint256 i) public {
         Vec8x32 xs = embed(i, x);
         Vec8x32 ys = embed(i, y);
@@ -149,5 +157,4 @@ contract Vec8x32Test is Test {
             assertEq(z1, x[1] - y[1]);
         }
     }
-
 }

@@ -75,7 +75,7 @@ function pluck(Vec8x32 xs, uint256 i) pure returns (uint8 x) {
 
 function fill(uint256 n, uint8 x) pure returns (Vec8x32) {
     unchecked {
-        bytes32 b = V01x32 >> ((31 - (n % 32)) << 3);
+        bytes32 b = V01x32 << ((32 - (n % 32)) << 3);
         uint256 t = x * uint256(b);
         return Vec8x32.wrap(bytes32(t));
     }
