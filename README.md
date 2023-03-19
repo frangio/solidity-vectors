@@ -64,14 +64,16 @@ Component-wise addition and subtraction of two vectors with wrap-around on overf
 
 Component-wise negation with wrap-around on overflow.
 
-## Bitwise
-
-### `v & w`, `v | w`, `v ^ w`, `~v`
-
-Component-wise bitwise operators. (Equivalent to operating on `bytes32` values.)
-
 ## Others
 
 ### `v.pluck(i)`
 
 Returns $v_i$. $i$ is used modulo 32.
+
+### `v == w`, `v != w`
+
+Comparisons operate on the entire vector and return a single boolean.
+
+### `v & w`, `v | w`, `v ^ w`, `~v`
+
+Bitwise operations are component-wise, which is equivalent to their standard behavior on `bytes32`.
