@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 
 type Vec8x32 is bytes32;
 
-using {add as +, sub as -, or as |, and as &, not as ~} for Vec8x32 global;
+using {add as +, sub as -, neg as -, or as |, and as &, xor as ^, not as ~} for Vec8x32 global;
 using Vec8x32Methods for Vec8x32 global;
 
 bytes32 constant B1x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
@@ -127,12 +127,20 @@ function sub(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
     return add1(xs + ~ys);
 }
 
+function neg(Vec8x32 xs) pure returns (Vec8x32) {
+    return add1(~xs);
+}
+
 function or(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
     return Vec8x32.wrap(Vec8x32.unwrap(xs) | Vec8x32.unwrap(ys));
 }
 
 function and(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
     return Vec8x32.wrap(Vec8x32.unwrap(xs) & Vec8x32.unwrap(ys));
+}
+
+function xor(Vec8x32 xs, Vec8x32 ys) pure returns (Vec8x32) {
+    return Vec8x32.wrap(Vec8x32.unwrap(xs) ^ Vec8x32.unwrap(ys));
 }
 
 function not(Vec8x32 xs) pure returns (Vec8x32) {
