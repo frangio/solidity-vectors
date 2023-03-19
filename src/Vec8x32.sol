@@ -47,7 +47,7 @@ function all(Vec8x32 xs, uint8 y) pure returns (bool) {
 
 function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
     unchecked {
-        uint256 b = 1 << ((i % 32) << 3);
+        uint256 b = 1 << ((31 - (i % 32)) << 3);
         uint256 t = uint256(x) * b;
         return Vec8x32.wrap(bytes32(t));
     }
@@ -55,7 +55,7 @@ function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
 
 function put(Vec8x32 xs, uint256 i, uint8 y) pure returns (Vec8x32) {
     unchecked {
-        uint256 s = (i % 32) << 3;
+        uint256 s = (31 - (i % 32)) << 3;
         bytes32 t = Vec8x32.unwrap(xs);
         t &= ~(bytes32(uint256(0xff)) << s);
         t |= bytes32(uint256(y) * (1 << s));
@@ -66,7 +66,7 @@ function put(Vec8x32 xs, uint256 i, uint8 y) pure returns (Vec8x32) {
 function pluck(Vec8x32 xs, uint256 i) pure returns (uint8 x) {
     unchecked {
         bytes32 t = Vec8x32.unwrap(xs);
-        t >>= (i % 32) << 3;
+        t >>= (31 - (i % 32)) << 3;
         t &= bytes32(uint256(0xff));
         // avoid solidity cleanup
         assembly { x := t }
@@ -75,7 +75,7 @@ function pluck(Vec8x32 xs, uint256 i) pure returns (uint8 x) {
 
 function fill(uint256 n, uint8 x) pure returns (Vec8x32) {
     unchecked {
-        bytes32 b = V01x32 >> (256 - ((n % 32) << 3));
+        bytes32 b = V01x32 >> ((31 - (n % 32)) << 3);
         uint256 t = x * uint256(b);
         return Vec8x32.wrap(bytes32(t));
     }
