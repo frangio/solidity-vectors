@@ -187,4 +187,11 @@ contract Vec8x32Test is Test {
             assertTrue(zs.all(x - y));
         }
     }
+
+    function test_sub_3(Vec8x32 xs, Vec8x32 ys, uint8 i) public {
+        Vec8x32 zs = xs - ys;
+        unchecked {
+            assertEq(zs.pluck(i), xs.pluck(i) - ys.pluck(i));
+        }
+    }
 }
