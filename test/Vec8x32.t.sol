@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "../src/Vec8x32.sol";
 
 contract Vec8x32Test is Test {
-    function test_embed_0() public {
+    function test_embed() public {
         Vec8x32 v1 = embed8x32(0, 0xab);
         assertEq(
             Vec8x32.unwrap(v1),
@@ -41,9 +41,6 @@ contract Vec8x32Test is Test {
 
     function test_put_pluck(uint8 x, uint256 i) public {
         assertEq(V0x32.put(i, x).pluck(i), x);
-    }
-
-    function test_eq(Vec8x32 v) public {
     }
 
     // any(v, x) is true if v[i] = x and v[j] = 0 for all j != i
