@@ -10,18 +10,39 @@ using {add as +, sub as -, or as |, and as &, not as ~} for Vec8x32 global;
 bytes32 constant V01x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
 
 function broadcast(uint8 x) pure returns (Vec8x32) {
-    return Vec8x32.wrap(bytes32(x * uint256(V01x32)));
+    unchecked {
+        return Vec8x32.wrap(bytes32(x * uint256(V01x32)));
+    }
 }
 
 function any(Vec8x32 xs, uint8 y) pure returns (bool) {
-    bytes32 ys = bytes32(y * uint256(V01x32));
-    bytes32 t = Vec8x32.unwrap(xs);
-    t ^= ~ys;
-    t &= t >> 4;  // 01234567 & 45670123 = ____abcd
-    t &= t >> 2;  // ____abcd & ______ab = ______ef
-    t &= t >> 1;  // ______ef & _______e = _______z, z = &(0,1,2,3,4,5,6,7)
-    t &= V01x32;  // _______z & 00000001 = 0000000z
-    return t != 0;
+        unchecked {
+        bytes32 ys = bytes32(y * uint256(V01x32));
+        bytes32 t = Vec8x32.unwrap(xs);
+        t ^= ~ys;
+        t &= t >> 4;  // 01234567 & 45670123 = ____abcd
+        t &= t >> 2;  // ____abcd & ______ab = ______ef
+        t &= t >> 1;  // ______ef & _______e = _______z, z = &(0,1,2,3,4,5,6,7)
+        t &= V01x32;  // _______z & 00000001 = 0000000z
+        return t != 0;
+    }
+}
+
+function all(Vec8x32 xs, uint8 y) pure returns (bool) {
+    unchecked {
+        bytes32 ys = bytes32(y * uint256(V01x32));
+        bytes32 t = Vec8x32.unwrap(xs);
+        t ^= ys;
+        t |= t >> 128;
+        t |= t >> 64;
+        t |= t >> 32;
+        t |= t >> 16;
+        t |= t >> 8;
+        t |= t >> 4;
+        t |= t >> 2;
+        t |= t >> 1;
+        return t == 0;
+    }
 }
 
 function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
@@ -32,7 +53,7 @@ function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
     }
 }
 
-function put(Vec8x32 xs, uint8 x, uint256 i) pure returns (Vec8x32) {
+function put(Vec8x32 xs, uint256 i, uint8 x) pure returns (Vec8x32) {
     unchecked {
         uint256 s = (i % 32) << 3;
         uint256 b = 1 << s;

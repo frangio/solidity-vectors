@@ -39,7 +39,26 @@ contract Vec8x32Test is Test {
         assertFalse(any(v, x));
     }
 
-    function test_put_0() public {
+    function test_all_0() public {
+        Vec8x32 z = Vec8x32.wrap(0);
+        assertTrue(all(z, 0x00));
+
+        Vec8x32 f = Vec8x32.wrap(bytes32(type(uint256).max));
+        assertTrue(all(f, 0xff));
+    }
+
+    function test_all_1(uint8 x) public {
+        Vec8x32 v = broadcast(x);
+        assertTrue(all(v, x));
+    }
+
+    function test_all_2(uint8 x, uint8 y, uint256 i) public {
+        vm.assume(x != y);
+        Vec8x32 v = put(broadcast(x), i, y);
+        assertFalse(all(v, x));
+    }
+
+    function test_embed_0() public {
         Vec8x32 v1 = embed(0, 0xab);
         assertEq(
             Vec8x32.unwrap(v1),
@@ -65,7 +84,7 @@ contract Vec8x32Test is Test {
         );
     }
 
-    function test_put_pluck(uint8 x, uint256 i) public {
+    function test_embed_pluck(uint8 x, uint256 i) public {
         assertEq(pluck(embed(i, x), i), x);
     }
 
