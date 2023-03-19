@@ -4,6 +4,10 @@
 
 *May contain bugs. Use at your own risk.*
 
+```solidity
+import {Vec8x32} from 'solidity-vectors/Vec8x32.sol';
+```
+
 ## Constants
 
 ### `V0x32`
@@ -24,15 +28,21 @@ Returns a vector $v$ such that $v_i = x$ for all $i$.
 
 Returns a vector $v$ such that $v_i = x$ and $v_j = 0$ for $j \neq i$.
 
+$i$ is used modulo 32.
+
 ### `fill8x32(n, x)`
 
 Returns a vector $v$ such that $v_i = x$ for $i < n$ and $v_j = 0$ for $j >= n$.
+
+$n$ is used modulo 32.
 
 ## Modification
 
 ### `v.put(i, x)`
 
 Returns a new vector $v'$ such that $v'_i = x$ and $v'_j = v_j$ for $i \neq j$.
+
+$i$ is used modulo 32.
 
 ## Predicates
 
@@ -64,4 +74,4 @@ Component-wise bitwise operators. (Equivalent to operating on `bytes32` values.)
 
 ### `v.pluck(i)`
 
-Returns $v_i$.
+Returns $v_i$. $i$ is used modulo 32.
