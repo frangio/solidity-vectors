@@ -53,22 +53,20 @@ function embed(uint256 i, uint8 x) pure returns (Vec8x32) {
     }
 }
 
-function put(Vec8x32 xs, uint256 i, uint8 x) pure returns (Vec8x32) {
+function put(Vec8x32 xs, uint256 i, uint8 y) pure returns (Vec8x32) {
     unchecked {
         uint256 s = (i % 32) << 3;
-        uint256 b = 1 << s;
         bytes32 t = Vec8x32.unwrap(xs);
         t &= ~(bytes32(uint256(0xff)) << s);
-        t |= bytes32(uint256(x) * b);
+        t |= bytes32(uint256(y) * (1 << s));
         return Vec8x32.wrap(t);
     }
 }
 
 function pluck(Vec8x32 xs, uint256 i) pure returns (uint8 x) {
     unchecked {
-        uint256 s = (i % 32) << 3;
         bytes32 t = Vec8x32.unwrap(xs);
-        t >>= s;
+        t >>= (i % 32) << 3;
         t &= bytes32(uint256(0xff));
         // avoid solidity cleanup
         assembly { x := t }
