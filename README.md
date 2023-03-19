@@ -1,6 +1,6 @@
 # $\vec{v}$.sol
 
-**A vector data type with 32 8-bit components and basic vectorized operations.**
+**A vector data type with 32 components 8 bits each and basic vectorized operations.**
 
 *May contain bugs. Use at your own risk.*
 
