@@ -73,7 +73,7 @@ contract Vec8x32Test is Test {
         Vec8x32 xs = embed(i, x);
         Vec8x32 ys = embed(i, y);
 
-        Vec8x32 zs = add(xs, ys);
+        Vec8x32 zs = xs + ys;
 
         uint8 z = pluck(zs, i);
 
@@ -99,4 +99,36 @@ contract Vec8x32Test is Test {
             assertEq(z1, x[1] + y[1]);
         }
     }
+
+    function test_sub_0(uint8 x, uint8 y, uint256 i) public {
+        Vec8x32 xs = embed(i, x);
+        Vec8x32 ys = embed(i, y);
+
+        Vec8x32 zs = xs - ys;
+
+        uint8 z = pluck(zs, i);
+
+        unchecked {
+            assertEq(z, x - y);
+        }
+    }
+
+    function test_sub_1(uint8[2] calldata x, uint8[2] calldata y, uint256[2] memory i) public {
+        i[0] = bound(i[0], 0, 30);
+        i[1] = bound(i[1], i[0] + 1, 31);
+
+        Vec8x32 xs = embed(i[0], x[0]) | embed(i[1], x[1]);
+        Vec8x32 ys = embed(i[0], y[0]) | embed(i[1], y[1]);
+
+        Vec8x32 zs = xs - ys;
+
+        uint8 z0 = pluck(zs, i[0]);
+        uint8 z1 = pluck(zs, i[1]);
+
+        unchecked {
+            assertEq(z0, x[0] - y[0]);
+            assertEq(z1, x[1] - y[1]);
+        }
+    }
+
 }
