@@ -9,6 +9,7 @@ using {add as +, sub as -, neg as -, or as |, and as &, xor as ^, not as ~, eq a
 using Vec8x32Methods for Vec8x32 global;
 
 bytes32 constant B1x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
+bytes32 constant B1x16 = hex"0001000100010001000100010001000100010001000100010001000100010001";
 
 Vec8x32 constant V0x32 = Vec8x32.wrap(0);
 Vec8x32 constant V1x32 = Vec8x32.wrap(B1x32);
@@ -61,6 +62,22 @@ library Vec8x32Methods {
             t &= bytes32(uint256(0xff));
             // avoid solidity cleanup
             assembly { x := t }
+        }
+    }
+
+    function mul(Vec8x32 xs, uint8 y) internal pure returns (Vec8x32) {
+        unchecked {
+            uint256 b = 0xff * uint256(B1x16);
+            uint256 q = ~b;
+
+            uint256 x = uint256(Vec8x32.unwrap(xs));
+
+            uint256 r0 = ((x & b) * y) & b;
+            uint256 r1 = ((x & q) * y) & q;
+
+            uint256 r = r0 | r1;
+
+            return Vec8x32.wrap(bytes32(r));
         }
     }
 }

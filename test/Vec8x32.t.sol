@@ -194,4 +194,40 @@ contract Vec8x32Test is Test {
             assertEq(zs.pluck(i), xs.pluck(i) - ys.pluck(i));
         }
     }
+
+    function test_mul_0(uint8 x, uint256 i, uint8 y) public {
+        Vec8x32 xs = embed8x32(i, x);
+
+        Vec8x32 zs = xs.mul(y);
+
+        uint8 z = zs.pluck(i);
+
+        unchecked {
+            assertEq(z, x * y);
+        }
+    }
+
+    function test_mul_1(uint8[2] calldata x, uint256[2] memory i, uint8 y) public {
+        i[0] = bound(i[0], 0, 30);
+        i[1] = bound(i[1], i[0] + 1, 31);
+
+        Vec8x32 xs = embed8x32(i[0], x[0]) | embed8x32(i[1], x[1]);
+
+        Vec8x32 zs = xs.mul(y);
+
+        uint8 z0 = zs.pluck(i[0]);
+        uint8 z1 = zs.pluck(i[1]);
+
+        unchecked {
+            assertEq(z0, x[0] * y);
+            assertEq(z1, x[1] * y);
+        }
+    }
+
+    function test_mul_3(Vec8x32 xs, uint8 y, uint8 i) public {
+        Vec8x32 zs = xs.mul(y);
+        unchecked {
+            assertEq(zs.pluck(i), xs.pluck(i) * y);
+        }
+    }
 }

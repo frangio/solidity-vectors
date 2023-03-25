@@ -64,6 +64,10 @@ Component-wise addition and subtraction of two vectors with wrap-around on overf
 
 Component-wise negation with wrap-around on overflow.
 
+### `v * k`
+
+Scalar multiplication of a vector with an 8-bit unsigned integer.
+
 ## Others
 
 ### `v.pluck(i)`
