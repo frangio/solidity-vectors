@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 
 type Vec8x32 is bytes32;
 
-using {add as +, sub as -, neg as -, or as |, and as &, xor as ^, not as ~, eq as ==} for Vec8x32 global;
+using {add as +, sub as -, neg as -, or as |, and as &, xor as ^, not as ~, eq as ==, neq as !=} for Vec8x32 global;
 using Vec8x32Methods for Vec8x32 global;
 
 bytes32 constant B1x32 = hex"0101010101010101010101010101010101010101010101010101010101010101";
