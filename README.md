@@ -36,14 +36,6 @@ Returns a vector $v$ such that $v_i = x$ for $i < n$ and $v_j = 0$ for $j >= n$.
 
 $n$ is used modulo 32.
 
-## Modification
-
-### `v.put(i, x)`
-
-Returns a new vector $v'$ such that $v'_i = x$ and $v'_j = v_j$ for $i \neq j$.
-
-$i$ is used modulo 32.
-
 ## Predicates
 
 ### `v.any(x)`
@@ -53,6 +45,10 @@ Returns true if there is any $v_i = x$.
 ### `v.all(x)`
 
 Returns true if $v_i = x$ for all $i$.
+
+### `v == w`, `v != w`
+
+Comparisons operate on the entire vector and return a single boolean.
 
 ## Arithmetic
 
@@ -70,13 +66,17 @@ Scalar multiplication of a vector with an 8-bit unsigned integer.
 
 ## Others
 
+### `v.put(i, x)`
+
+Returns a new vector $v'$ such that $v'_i = x$ and $v'_j = v_j$ for $i \neq j$.
+
+$i$ is used modulo 32.
+
 ### `v.pluck(i)`
 
-Returns $v_i$. $i$ is used modulo 32.
+Returns $v_i$.
 
-### `v == w`, `v != w`
-
-Comparisons operate on the entire vector and return a single boolean.
+$i$ is used modulo 32.
 
 ### `v & w`, `v | w`, `v ^ w`, `~v`
 
